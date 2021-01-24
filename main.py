@@ -41,7 +41,7 @@ anim = animation.FuncAnimation(fig, animate, init_func=init, interval=10)
 
 plt.show()
 
-nn2 = deepcopy(nn)
+#nn2 = deepcopy(nn)
 
 print(nn.feed_forward(np.array([[1], [0]])), "Correct answer is: 1")
 print(nn.feed_forward(np.array([[0], [1]])), "Correct answer is: 1")

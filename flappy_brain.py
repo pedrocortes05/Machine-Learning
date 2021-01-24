@@ -1,9 +1,9 @@
-import pygame
+from Neural_Network import NeuralNetwork
 from pygame.locals import *
+import numpy as np
+import pygame
 import random
 import time
-from Neural_Network import NeuralNetwork
-import numpy as np
 
 
 pygame.init()
@@ -25,24 +25,29 @@ game_over = False
 pipe_gap = 300
 pipe_frequency = 1500 #milliseconds
 last_pipe = pygame.time.get_ticks() - pipe_frequency
-slave_birds = 100
-output_list = [0] * slave_birds
+slave_birds = 50
+output_list = [None] * slave_birds
+bird_brains = [None] * slave_birds
 
 #load images
-bg = pygame.image.load("Sprites/background.png")
+#g = pygame.image.load("Sprites/background.png")
 
 class Bird(pygame.sprite.Sprite):
-    def __init__(self, x, y, bird_number):
+    def __init__(self, bird_number, brain=None):
         pygame.sprite.Sprite.__init__(self)
         self.images = []
         self.index = 0
         self.counter = 0
         self.die = False
         self.score = 0
+        self.fitness = 0
         self.pass_pipe = False
         self.inputs = np.zeros((5, 1))
         self.bird_number = bird_number
-        self.brain = NeuralNetwork(5, 2, 1)
+        if brain is not None:
+            self.brain = brain
+        else:
+            self.brain = NeuralNetwork(5, 2, 1)
         """
         for num in [14, 11, 10]:
             img = pygame.image.load(f"Sprites/Danganronpa_1_Monokuma_Fullbody_Sprite_{num}.png")
@@ -51,7 +56,7 @@ class Bird(pygame.sprite.Sprite):
         self.images.append(pygame.image.load("Sprites/Danganronpa_1_Monokuma_Fullbody_Sprite_14.png"))
         self.image = self.images[self.index]
         self.rect = self.image.get_rect()
-        self.rect.center = [x, y]
+        self.rect.center = [100, int(screen_height / 2)]
         self.vel = 0
 
     def jump(self):
@@ -60,10 +65,9 @@ class Bird(pygame.sprite.Sprite):
     def think(self, pipes):
         self.inputs[0, 0] = self.rect.y / screen_height
         self.inputs[1, 0] = self.vel
-        self.inputs[2, 0] = pipes[0].rect.top / screen_height
+        self.inputs[2, 0] = pipes[1].rect.top / screen_height
         self.inputs[3, 0] = pipes[0].rect.bottom / screen_height
         self.inputs[4, 0] = pipes[0].rect.left / screen_width
-        #print(self.inputs)
         self.output = self.brain.feed_forward(self.inputs)
 
         if self.output > 0.5:
@@ -98,7 +102,8 @@ class Bird(pygame.sprite.Sprite):
         else:
             self.image = pygame.transform.rotate(self.images[self.index], -90)
             output_list[self.bird_number] = self.score
-            print("berd ded")
+            bird_brains[self.bird_number] = self.brain
+            #print("berd ded " + str(self.bird_number))
             self.kill()
 
 

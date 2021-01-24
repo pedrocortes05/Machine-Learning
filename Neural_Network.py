@@ -49,6 +49,17 @@ class NeuralNetwork:
         self.weights1 = self.weights1 + delta_weights1
         self.bias1 = self.bias1 + hidden_gradients
     
+    def mutate(self, rate):
+        def mutate(val):
+            if random.random() < rate:
+                return random.random() * 2 - 1
+            else: 
+                return val
+        self.weights1 = map(self.weights1, mutate)
+        self.weights2 = map(self.weights2, mutate)
+        self.bias1 = map(self.bias1, mutate)
+        self.bias2 = map(self.bias2, mutate)
+    
 
 def randomMatrix(row, col):
     arr = np.zeros(shape=(row,col))
@@ -81,9 +92,6 @@ def map(matrix, myfunc):
         for col in range(result.shape[1]):
             result[row, col] = myfunc(matrix[row, col])
     return result
-
-def mutate():
-    print()
 
 def sigmoid(n):
     return 1 / (1 + math.exp(-n))

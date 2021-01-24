@@ -22,12 +22,13 @@ ground_scroll = 0
 scroll_speed = 4
 flying = False
 game_over = False
-pipe_gap = 300
+pipe_gap = 200
 pipe_frequency = 1500 #milliseconds
 last_pipe = pygame.time.get_ticks() - pipe_frequency
-slave_birds = 50
+slave_birds = 250
 output_list = [None] * slave_birds
 bird_brains = [None] * slave_birds
+saved_birds = [None] * slave_birds
 
 #load images
 #g = pygame.image.load("Sprites/background.png")
@@ -103,6 +104,7 @@ class Bird(pygame.sprite.Sprite):
             self.image = pygame.transform.rotate(self.images[self.index], -90)
             output_list[self.bird_number] = self.score
             bird_brains[self.bird_number] = self.brain
+            saved_birds[self.bird_number] = self
             #print("berd ded " + str(self.bird_number))
             self.kill()
 

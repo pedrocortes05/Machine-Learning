@@ -2,6 +2,9 @@ import math
 import numpy as np
 from numpy import random
 from copy import deepcopy
+import json
+from json import JSONEncoder
+
 
 class NeuralNetwork:
     def __init__(self, input_nodes, hidden_nodes, output_nodes):
@@ -17,7 +20,6 @@ class NeuralNetwork:
 
         self.learning_rate = 0.1
         self.error = np.zeros(shape=(1,1))
-        self.error = randomMatrix(1, 1)
 
     def feed_forward(self, inputs):
         layer2 = map((np.dot(self.weights1, inputs) + self.bias1), sigmoid)
@@ -52,14 +54,24 @@ class NeuralNetwork:
     def mutate(self, rate):
         def mutate(val):
             if random.random() < rate:
-                return random.random() * 2 - 1
+                return (random.random() * 2 - 1)
             else: 
                 return val
         self.weights1 = map(self.weights1, mutate)
         self.weights2 = map(self.weights2, mutate)
         self.bias1 = map(self.bias1, mutate)
         self.bias2 = map(self.bias2, mutate)
+
+    def toJSON(self):
+        return json.dumps(self.__dict__, cls=NumpyArrayEncoder)
     
+
+class NumpyArrayEncoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return JSONEncoder.default(self, obj)
+
 
 def randomMatrix(row, col):
     arr = np.zeros(shape=(row,col))

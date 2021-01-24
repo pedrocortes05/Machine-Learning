@@ -4,14 +4,16 @@ from Neural_Network import *
 from flappy_brain import *
 import seaborn as sns
 
+generation = 0
 
 def nextGeneration():
-    print(output_list)
-    big_brain = output_list.index(max(output_list))
+    global generation
+    generation += 1
+    print(generation)
+    calculate_fitness()
     for x in range(slave_birds):
-        monokuma = Bird(x, deepcopy(bird_brains[big_brain]))
-        if x != 0:
-            monokuma.brain.mutate(0.1)
+        monokuma = pickOne(x)
+        monokuma.brain.mutate(0.1)
         bird_group.add(monokuma)
 
 def init_pipes():
@@ -27,11 +29,24 @@ def init_pipes():
 
 def calculate_fitness():
     sum = 0
-    for bird in bird_group.sprites():
+    for bird in saved_birds:
         sum += bird.score
 
-    for bird in bird_group.sprites():
-        fitness = bird.score / sum
+    for bird in saved_birds:
+        bird.fitness = bird.score / sum
+
+
+def pickOne(bird_number):
+    index = 0
+    r = random.random()
+
+    while r > 0:
+        r -= saved_birds[index].fitness
+        index += 1
+    index -= 1
+    monokuma = Bird(bird_number, deepcopy(saved_birds[index].brain))
+    return monokuma
+
 
 
 #create groups
@@ -63,7 +78,6 @@ while run:
                 if bird.rect.left > pipe_group.sprites()[0].rect.right:
                     bird.score += 1
                     bird.pass_pipe = False
-                    print(bird.score)
             bird.score += 0.01
 
     #print(output_list)
@@ -114,8 +128,16 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_s:
+                for bird in bird_group.sprites():
+                    bird.kill()
+            biggest_brain = bird_brains[output_list.index(max(output_list))]
+            jsonStr = biggest_brain.toJSON()
+            with open("biggest_brain.json", 'w') as JSONfile:
+                json.dump(jsonStr, JSONfile)
 
     pygame.display.update()
         
-print(output_list)
 pygame.quit()
